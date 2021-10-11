@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TextureAtlas imagePath="area11camera.png">
+<SubTexture name="area11camera idle0000" x="0" y="0" width="2564" height="1444" frameX="0" frameY="0" frameWidth="2564" frameHeight="1444" />
+<SubTexture name="area11camera idle0001" x="0" y="0" width="2564" height="1444" frameX="0" frameY="0" frameWidth="2564" frameHeight="1444" />
+<SubTexture name="area11camera idle0002" x="2564" y="0" width="2564" height="1444" frameX="0" frameY="0" frameWidth="2564" frameHeight="1444" />
+</TextureAtlas>

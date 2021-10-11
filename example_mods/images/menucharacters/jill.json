@@ -1,0 +1,10 @@
+{
+	"idle_anim": "jill IDLE",
+	"image": "jill",
+	"position": [
+		300,
+		330
+	],
+	"scale": 0.42,
+	"confirm_anim": "jill IDLE"
+}
