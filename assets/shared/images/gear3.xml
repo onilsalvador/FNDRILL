@@ -1,5 +1,13 @@
-<?xml version='1.0' encoding='utf-8'?>
-<TextureAtlas imagePath="gear3.png"><SubTexture name="gear3 idle0000" x="0" y="0" width="106" height="86" frameX="0" frameY="0" frameWidth="106" frameHeight="86" />
-<SubTexture name="gear3 idle0001" x="106" y="0" width="106" height="86" frameX="0" frameY="0" frameWidth="106" frameHeight="86" />
-<SubTexture name="gear3 idle0002" x="212" y="0" width="106" height="86" frameX="0" frameY="0" frameWidth="106" frameHeight="86" />
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="gear3.png">
+	<!-- Created with Adobe Animate version 19.2.0.405 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="gear3 idle0000" x="0" y="0" width="103" height="84" frameX="-79" frameY="-66" frameWidth="0" frameHeight="0"/>
+	<SubTexture name="gear3 idle0001" x="103" y="0" width="152" height="147" frameX="-45" frameY="-48" frameWidth="0" frameHeight="0"/>
+	<SubTexture name="gear3 idle0002" x="255" y="0" width="196" height="160" frameX="0" frameY="-23" frameWidth="0" frameHeight="0"/>
+	<SubTexture name="gear3 idle0003" x="0" y="160" width="185" height="193" frameX="-11" frameY="-4" frameWidth="0" frameHeight="0"/>
+	<SubTexture name="gear3 idle0004" x="185" y="160" width="167" height="180" frameX="-60" frameY="0" frameWidth="0" frameHeight="0"/>
+	<SubTexture name="gear3 idle0005" x="0" y="353" width="177" height="145" frameX="-56" frameY="-36" frameWidth="0" frameHeight="0"/>
+	<SubTexture name="gear3 idle0006" x="177" y="353" width="198" height="153" frameX="-45" frameY="-42" frameWidth="0" frameHeight="0"/>
+	<SubTexture name="gear3 idle0007" x="0" y="506" width="215" height="141" frameX="0" frameY="-47" frameWidth="0" frameHeight="0"/>
 </TextureAtlas>

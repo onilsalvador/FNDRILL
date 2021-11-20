@@ -1,19 +1,53 @@
 package;
 
-import llua.Convert;
-import flixel.FlxState;
-import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.util.FlxTimer;
-import flixel.tweens.FlxTween;
-import flixel.addons.transition.FlxTransitionableState;
+#if desktop
+import Discord.DiscordClient;
+#end
+import Section.SwagSection;
+import Song.SwagSong;
+import WiggleEffect.WiggleEffectType;
+import flixel.FlxBasic;
+import flixel.FlxCamera;
 import flixel.FlxG;
+import flixel.FlxGame;
+import flixel.FlxObject;
 import flixel.FlxSprite;
+import flixel.FlxState;
+import flixel.FlxSubState;
 import flixel.addons.display.FlxGridOverlay;
+import flixel.addons.effects.FlxTrail;
+import flixel.addons.effects.FlxTrailArea;
+import flixel.addons.effects.chainable.FlxEffectSprite;
+import flixel.addons.effects.chainable.FlxWaveEffect;
+import flixel.addons.transition.FlxTransitionableState;
+import flixel.graphics.atlas.FlxAtlas;
+import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
+import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
+import flixel.system.FlxSound;
 import flixel.text.FlxText;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
+import flixel.ui.FlxBar;
+import flixel.util.FlxCollision;
 import flixel.util.FlxColor;
+import flixel.util.FlxSort;
+import flixel.util.FlxStringUtil;
+import flixel.util.FlxTimer;
+import haxe.Json;
 import lime.utils.Assets;
+import openfl.display.BlendMode;
+import openfl.display.StageQuality;
+import openfl.filters.ShaderFilter;
+import openfl.utils.Assets as OpenFlAssets;
+import editors.ChartingState;
+import editors.CharacterEditorState;
+import Achievements;
+import StageData;
+import FunkinLua;
+import DialogueBoxPsych;
 
 #if windows
 import Discord.DiscordClient;
@@ -21,19 +55,17 @@ import Discord.DiscordClient;
 
 class PasswordState extends MusicBeatState
 {
-    var thing:Bool = true;
-	var tw:FlxSprite;
-	var correct:Bool = false;
 	var pass1value:Int = 0;
 	var pass2value:Int = 0;
     var pass3value:Int = 0;
     var pass4value:Int = 0;
 	var selectpass:Int = 0;
-	var incameo:Bool = false;
 	var pass4 = new FlxText(400, 500, 0, '0', 30, true);
 	var pass3 = new FlxText(300, 500, 0, '0', 30, true);
 	var pass2 = new FlxText(200, 500, 0, '0', 30, true);
 	var pass1 = new FlxText(100, 500, 0, '0', 30, true);
+	var chips = new FlxText(900, 100, 0, '0', 30, true);
+	var batteries = new FlxText(100, 100, 0, '0', 30, true);
 
 	override function create()
         {
@@ -59,12 +91,19 @@ class PasswordState extends MusicBeatState
 
 			add(pass4);
 
+			add(batteries);
+			
+			add(chips);
+
 			super.create();
 
 			if (FlxG.sound.music.playing)
-				FlxG.sound.destroy;
-				FlxG.sound.playMusic(Paths.music("breakfast"), 1, true);
+			{
+			FlxG.sound.playMusic(Paths.music("presettings"), 1, false);
+			FlxG.sound.music.onComplete = function () FlxG.sound.playMusic(Paths.music("loopsettings"), 1);
+			}
 		}
+
 	function changeNumber(selection:Int) 
 	{
 		switch(selectpass)
@@ -96,11 +135,10 @@ class PasswordState extends MusicBeatState
 		}
 	}
 
-	function doTheThing(first:Int, second:Int, third:Int, fourth:Int) 
+	function correctpassword(first:Int, second:Int, third:Int, fourth:Int) 
 		{
 			if (first == 1 && second == 9 && third == 8 && fourth == 0)
 				{
-					correct = true;
 					PlayState.SONG = Song.loadFromJson('drilldozer-sky', 'drilldozer');
 					PlayState.isStoryMode = false;
 					PlayState.storyDifficulty = 3;
@@ -121,6 +159,27 @@ class PasswordState extends MusicBeatState
 						remove(bg);
 					}
 				}
+			
+			if (first == 4 && second == 2 && third == 7 && fourth == 3)
+				{
+					FlxG.sound.play(Paths.sound('confirmMenu'));
+					CoolUtil.difficultyStuff = [
+						['EASY', '-hard'],
+						['NORMAL', '-hard'],
+						['HARD', '-hard']
+					];
+				}
+			if (first == 1 && second == 2 && third == 3 && fourth == 4)
+					{
+						if (PlayState.chips < 200)
+						FlxG.sound.play(Paths.sound('confirmMenu'));
+						else 
+						{
+							PlayState.chips -= 200;
+							PlayState.extraLifes += 1;
+						}
+
+					}
 			else 
 				{
 					FlxG.sound.play(Paths.sound('scrollMenu'));
@@ -137,11 +196,9 @@ class PasswordState extends MusicBeatState
 
 			if (FlxG.keys.justPressed.UP || FlxG.keys.justPressed.W) changeNumber(-1);
 
-			if (FlxG.keys.justPressed.ENTER && !correct) doTheThing(pass1value, pass2value, pass3value, pass4value);
+			if (FlxG.keys.justPressed.ENTER) correctpassword(pass1value, pass2value, pass3value, pass4value);
 
-			if (FlxG.keys.justPressed.ENTER && incameo) LoadingState.loadAndSwitchState(new PasswordState());
-
-			if (FlxG.keys.justPressed.ESCAPE && !incameo) LoadingState.loadAndSwitchState(new MainMenuState());
+			if (FlxG.keys.justPressed.ESCAPE) LoadingState.loadAndSwitchState(new MainMenuState());
 
 
 
@@ -149,6 +206,8 @@ class PasswordState extends MusicBeatState
 			pass2.text = Std.string(pass2value);
 			pass3.text = Std.string(pass3value);
 			pass4.text = Std.string(pass4value);
+			chips.text = Std.string(PlayState.chips);
+			batteries.text = Std.string(PlayState.extraLifes);
 
 			if (selectpass < 1) selectpass = 1;
 			if (selectpass > 4) selectpass = 4;

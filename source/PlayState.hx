@@ -60,6 +60,9 @@ class PlayState extends MusicBeatState
 	public static var STRUM_X = 42;
 	public static var STRUM_X_MIDDLESCROLL = -278;
 
+	public static var extraLifes:Int = 0;
+	public static var chips:Int = 0;
+
 	public static var ratingStuff:Array<Dynamic> = [
 		['You Suck!', 0.2], //From 0% to 19%
 		['Shit', 0.4], //From 20% to 39%
@@ -888,10 +891,10 @@ class PlayState extends MusicBeatState
 		healthBarGear2.visible = !ClientPrefs.hideHud;
 		if(ClientPrefs.downScroll) healthBarGear2.y = 0.11 * FlxG.height;
 
-		healthBarGear3 = new BGSprite('gear3', 940, FlxG.height * 0.89 - 34 - 20, 1, 1, ['gear3 idle'], true);
+		healthBarGear3 = new BGSprite('gear3', 940 - 80, FlxG.height * 0.89 - 54 - 67, 1, 1, ['gear3 idle'], true);
 		healthBarGear3.scrollFactor.set();
 		healthBarGear3.visible = !ClientPrefs.hideHud;
-		if(ClientPrefs.downScroll) healthBarGear3.y = 0.11 * FlxG.height;
+		if(ClientPrefs.downScroll) healthBarGear3.y = 0.11 * FlxG.height - 40;
 
 		healthBarGearSKY = new FlxSprite(940, FlxG.height * 0.89 - 34 - 20).loadGraphic(Paths.image('gearSKY'));
 		healthBarGearSKY.scrollFactor.set();
@@ -905,6 +908,7 @@ class PlayState extends MusicBeatState
 				}
 			case 'NORMAL': 
 				{
+					health = 2;
 					add(healthBarGear2);
 				}
 			case 'HARD':
@@ -2122,8 +2126,15 @@ class PlayState extends MusicBeatState
 		iconP1.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01) - iconOffset);
 		iconP2.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01)) - (iconP2.width - iconOffset);
 
-		if (health > 2)
-			health = 2;
+		switch (CoolUtil.difficultyString())
+		{
+		case 'HARD':
+		{	if (health > 0.001)
+				health = 0.001;}
+		default:
+		{	if (health > 2)
+				health = 2;}
+		}
 
 		if (healthBar.percent < 20)
 			iconP1.animation.curAnim.curFrame = 1;
@@ -2177,7 +2188,7 @@ class PlayState extends MusicBeatState
 					var secondsTotal:Int = Math.floor((songLength - curTime) / 1000);
 					if(secondsTotal < 0) secondsTotal = 0;
 
-					var minutesRemaining:Int = Math.floor(secondsTotal / 60);
+					var minutesRemaining:Int = Math.floor	(secondsTotal / 60);
 					var secondsRemaining:String = '' + secondsTotal % 60;
 					if(secondsRemaining.length < 2) secondsRemaining = '0' + secondsRemaining; //Dunno how to make it display a zero first in Haxe lol
 					timeTxt.text = minutesRemaining + ':' + secondsRemaining;
@@ -2490,32 +2501,88 @@ class PlayState extends MusicBeatState
 
 	var isDead:Bool = false;
 	function doDeathCheck() {
-		if (health <= 0 && !practiceMode && !isDead)
+		switch (CoolUtil.difficultyString())
 		{
-			var ret:Dynamic = callOnLuas('onGameOver', []);
-			if(ret != FunkinLua.Function_Stop) {
-				boyfriend.stunned = true;
-				deathCounter++;
-
-				persistentUpdate = false;
-				persistentDraw = false;
-				paused = true;
-
-				vocals.stop();
-				FlxG.sound.music.stop();
-
-				openSubState(new GameOverSubstate(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y, camFollowPos.x, camFollowPos.y, this));
-
-				// MusicBeatState.switchState(new GameOverState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
+		case 'EASY':
+			{
+				if (health <= 0 && !practiceMode && !isDead)
+					{
+					if (extraLifes == 0)
+						{
+							var ret:Dynamic = callOnLuas('onGameOver', []);
+							if(ret != FunkinLua.Function_Stop) {
+								boyfriend.stunned = true;
+								deathCounter++;
 				
-				#if desktop
-				// Game Over doesn't get his own variable because it's only used here
-				DiscordClient.changePresence("Game Over - " + detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
-				#end
-				isDead = true;
-				return true;
+								persistentUpdate = false;
+								persistentDraw = false;
+								paused = true;
+				
+								vocals.stop();
+								FlxG.sound.music.stop();
+				
+								openSubState(new GameOverSubstate(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y, camFollowPos.x, camFollowPos.y, this));
+				
+								// MusicBeatState.switchState(new GameOverState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
+								
+								#if desktop
+								// Game Over doesn't get his own variable because it's only used here
+								DiscordClient.changePresence("Game Over - " + detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
+								#end
+								isDead = true;
+								return true;
+							}
+						trace('noextralifes left');
+						}
+					else
+					{	
+					extraLifes -= 1;
+					health = 1;
+					trace('extralife used');
+					}
+				}
 			}
+		case 'NORMAL':
+			{
+			if (health <= 0 && !practiceMode && !isDead)
+				{
+				if (extraLifes == 0)
+					{
+						var ret:Dynamic = callOnLuas('onGameOver', []);
+						if(ret != FunkinLua.Function_Stop) {
+							boyfriend.stunned = true;
+							deathCounter++;
+			
+							persistentUpdate = false;
+							persistentDraw = false;
+							paused = true;
+			
+							vocals.stop();
+							FlxG.sound.music.stop();
+			
+							openSubState(new GameOverSubstate(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y, camFollowPos.x, camFollowPos.y, this));
+			
+							// MusicBeatState.switchState(new GameOverState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
+							
+							#if desktop
+							// Game Over doesn't get his own variable because it's only used here
+							DiscordClient.changePresence("Game Over - " + detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
+							#end
+							isDead = true;
+							return true;
+						}
+					trace('noextralifes left');
+					}
+				else
+					{	
+					extraLifes -= 1;
+					health = 2;
+					trace('extralife used');
+					}
+				}
+		
 		}
+	}
 		return false;
 	}
 
@@ -2899,7 +2966,11 @@ class PlayState extends MusicBeatState
 
 	var transitioning = false;
 	function endSong():Void
-	{
+	{	
+
+		//chips generator lmao :sky:
+		chips += Std.int(ratingPercent * 100);
+		trace (chips);
 		//Should kill you if you tried to cheat
 		if(!startingSong) {
 			notes.forEach(function(daNote:Note) {
@@ -3468,12 +3539,22 @@ class PlayState extends MusicBeatState
 				combo += 1;
 				if(combo > 9999) combo = 9999;
 			}
-
-			if (note.noteData >= 0)
-				health += 0.023;
-			else
-				health += 0.004;
-
+			switch (CoolUtil.difficultyString()){
+				case 'EASY':
+			{
+				if (note.noteData >= 0)	
+					health += 0.023;
+				else
+					health += 0.004;
+			}
+				default:
+			{
+				if (note.noteData >= 0)	
+					health += 0;
+				else
+					health += 0;
+			}
+		}
 			var daAlt = '';
 			if(note.noteType == 'Alt Animation') daAlt = '-alt';
 
